@@ -24,10 +24,7 @@ class Battleships(QtGui.QMainWindow):
         #self.gameui.rotateleft.clicked.connect()
         #self.gameui.rotateright.clicked.connect()
 
-        self.aishis = self.generate()
-
-    def placeships(self):
-        
+        self.aiships = self.generate()
 
     def generate(self):
         """
@@ -38,29 +35,24 @@ class Battleships(QtGui.QMainWindow):
         boats = self.boatlengths
         aiwords = self.choosewords()
 
-        for ship in boats:
-            shiplength = ship
-
-            for item in aiwords:
-                if len(item) == shiplength:
-                    word = item
-                
-            basisx = randrange(10)
-            basisy = randrange(10)
-
+        while boats != []: #reversed zodat de for loop doorgaat ook al worden er elementen verwijderd
+            basisx, basisy = randrange(1,9), randrange(1,9)            
             orientation = bool(getrandbits(1)) #orientation is True or False. True means vertical, False means horizontal
 
             if orientation == True: #als schip verticaal geörienteerd is
-                for i in range(shiplength):
-                    coordslist.append((int(basisx) + int(i), int(basisy), word[i]))
+                if basisx + boats[0] <10:
+                    for i in range(boats[0]):
+                        coordslist.append((basisx + i, basisy, aiwords[0][i]))
+                    boats.remove(boats[0])
+                    aiwords.remove(aiwords[0])
             else:
-                for i in range(shiplength):
-                    coordslist.append((int(basisx), int(basisy) + int(i), word[i]))
-
-            self.boatlengths.remove(shiplength)
-            aiwords.remove(word)
-        
+                if basisy + boats[0] < 10:
+                    for i in range(boats[0]):
+                        coordslist.append((basisx, basisy + i, aiwords[0][i]))
+                    boats.remove(boats[0])
+                    aiwords.remove(aiwords[0])        
         return coordslist
+
 
     def choosewords(self):
         lengte2 = []
