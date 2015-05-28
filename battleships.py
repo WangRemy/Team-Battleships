@@ -2,78 +2,97 @@
 
 from PyQt4 import QtCore, QtGui, uic
 import sys
-from random import randrange
-import npcships, choosewords
+from random import randrange, getrandbits
 
 
 class Battleships(QtGui.QMainWindow):
-	def __init__(self):
-		#initialize game window
-		super(Battleships, self).__init__()
-		self.gameui = uic.loadUi('gameui.ui', self)  #load ui from file
-		self.game_started = False
-		self.show()
-		
-		self.gameui.startbutton.clicked.connect(self.game) #starts game
-		self.gameui.actionVerlaat_spel.triggered.connect(self.exitgame)
-	
-	def game(self):
-		self.shiplengths = [2,2,3,3,4]			
-		shiporientation = 0 #orientation means direction ship is pointing in, 0 = north, 1 = south, 2 = west, 3 = east
-		self.npccoords = npcships.generate(self.shiplengths)
-		self.woordenlijst = choosewords.choosewords()
-		
-		self.gameui.rotateleft.setEnabled(True)
-		self.gameui.rotateright.setEnabled(True)
-		self.gameui.startbutton.setEnabled(False)
-		
-		self.gameui.rotateleft.clicked.connect(lambda: self.rotateship(True, shiporientation))
-		self.gameui.rotateright.clicked.connect(lambda: self.rotateship(False, shiporientation))
+    def __init__(self):
+        super(Battleships, self).__init__()
+        self.gameui = uic.loadUi('gameui.ui', self)  #load ui from file
+        self.show()
 
-		
-	def rotateship(self, direction, shiporientation):
-		if direction == False:
-			if shiporientation != 3:
-				shiporientation += 1
-			else:
-				shiporientation = 0
-		else:
-			if shiporientation != 0:
-				shiporientation -= 1
-			else:
-				shiporientation = 3
-				
-	def choosecoords(self, gameui, shiplengths): #to do: needs check to see if all ships have been placed
-		shipnumber = 1
-		message = "Place ship #1" #change message dynamically
-		gameui.instructionlabel.setText(message)
-			
-		#connects all buttons to function that handles input
-		for x in range(1,10):
-			for y in range(1,10):
-				self.coord = gameui.findChild(QtGui.QPushButton, "s" + str(x) + str(y))
-				gameui.self.coord.clicked.connect(lambda: inputhandler(shiplengths))
-			
-	def inputhandler(self, shiplengths):
-		ships_placed = 0
-		if ships_placed != 5:		
-			#checks if coord is an acceptable value
-			sendingbutton = sender().objectName() #value is s followed by x and y coordinate
-			x = sendingbutton[1]
-			y = sendingbutton[2]
-			if shiporientation = 0:
-				x += 1
-			
-		
+        self.gameui.startbutton.clicked.connect(self.game)
+        self.gameui.actionVerlaat_spel.triggered.connect(self.exitgame)
 
-	
-	def exitgame(self):
-		sys.exit()
+    def game(self):
+        self.boatlengths = [2,2,3,3,4]
+
+        self.gameui.rotateleft.setEnabled(True)
+        self.gameui.rotateright.setEnabled(True)
+        self.gameui.startbutton.setEnabled(False)
+
+        #self.gameui.rotateleft.clicked.connect()
+        #self.gameui.rotateright.clicked.connect()
+
+        self.aishis = self.generate()
+
+    def placeships(self):
+        
+
+    def generate(self):
+        """
+        generates ai ships. this function returns a list of tuples containing x and y coordinates, and their corresponding letter from a word.
+        """
+        coordslist = []
+
+        boats = self.boatlengths
+        aiwords = self.choosewords()
+
+        for ship in boats:
+            shiplength = ship
+
+            for item in aiwords:
+                if len(item) == shiplength:
+                    word = item
+                
+            basisx = randrange(10)
+            basisy = randrange(10)
+
+            orientation = bool(getrandbits(1)) #orientation is True or False. True means vertical, False means horizontal
+
+            if orientation == True: #als schip verticaal geörienteerd is
+                for i in range(shiplength):
+                    coordslist.append((int(basisx) + int(i), int(basisy), word[i]))
+            else:
+                for i in range(shiplength):
+                    coordslist.append((int(basisx), int(basisy) + int(i), word[i]))
+
+            self.boatlengths.remove(shiplength)
+            aiwords.remove(word)
+        
+        return coordslist
+
+    def choosewords(self):
+        lengte2 = []
+        lengte3 = []
+        lengte4 = []
+        woordenlijst = []
+        with open('woordenlijst.txt') as infile:
+            for line in infile:
+                if len(line) == 3:
+                    lengte2.append(line[:-1])
+                if len(line) == 4:
+                    lengte3.append(line[:-1])
+                if len(line) == 5:
+                    lengte4.append(line[:-1])
+            infile.close()
+
+        for i in range(2):
+            woordenlijst.append(lengte2[randrange(len(lengte2))])
+            woordenlijst.append(lengte3[randrange(len(lengte3))])
+        woordenlijst.append(lengte4[randrange(len(lengte4))])
+        
+        return woordenlijst
+
+
+
+    def exitgame(self):
+        sys.exit()
 
 if __name__ == '__main__':
-	app = QtGui.QApplication(sys.argv)
-	w = Battleships()
-	sys.exit(app.exec_())
+    app = QtGui.QApplication(sys.argv)
+    w = Battleships()
+    sys.exit(app.exec_())
 
 
 
