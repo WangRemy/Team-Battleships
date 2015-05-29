@@ -20,7 +20,7 @@ class Battleships(QtGui.QMainWindow):
         self.shipimage = QtGui.QPixmap("ship.png")
         self.gameui.imagelabel.setPixmap(self.shipimage)
         self.show()
-       
+
         self.gameui.startbutton.clicked.connect(self.game)
         self.gameui.actionVerlaat_spel.triggered.connect(self.exitgame)
 
@@ -36,10 +36,9 @@ class Battleships(QtGui.QMainWindow):
 
         self.aiships = self.generate()
 
-        for row in range(1,9):
-            for column in range(1,9):
-                self.coord = self.gameui.findChild(QtGui.QPushButton, "s" + str(row) + str(column))
-                self.coord.clicked.connect(self.placeship)
+        for row in range(1,10):
+            for column in range(1,10):
+                self.gameui.findChild(QtGui.QPushButton, "s" + str(row) + str(column)).clicked.connect(self.placeship)
 
     def placeship(self):
         """
@@ -50,8 +49,6 @@ class Battleships(QtGui.QMainWindow):
         source = self.gameui.sender().objectName()
         row = int(source[1])
         column = int(source[2])
-
-        #REMEMBER TO CHECK IF ALL FIVE SHIPS HAVE BEEN PLACED AFTER EACH SHIP HAS BEEN PLACED AND ADDED TO LIST
 
         if self.playerrotation: #is the ship aligned vertically?
             if row + self.boatlengths[0] < 11:
@@ -65,10 +62,9 @@ class Battleships(QtGui.QMainWindow):
                         self.boatcoords.append(pos)
                     self.boatlengths.remove(self.boatlengths[0])
                     for ship in shippositions:
-                        print(ship)
                         self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setEnabled(False)
                         self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setStyleSheet("background-color: blue")
-                        
+
         else:
             if column + self.boatlengths[0] < 11:
                 shippositions = []
@@ -82,25 +78,39 @@ class Battleships(QtGui.QMainWindow):
                         self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setEnabled(False)
                         self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setStyleSheet("background-color: blue")
 
-    def startgame(self):
-        print("hoi")
+        if self.boatlengths == []:
+            self.preparenpc()
+
+    def preparenpc(self):
+        for row in range(10):
+            for column in range(10):
+                self.gameui.findChild(QtGui.QPushButton, "s" + str(row) + str(column)).disconnect()
+                self.gameui.findChild(QtGui.QPushButton, "s" + str(row) + str(column)).clicked.connect(self.shoot)
+
+    def shoot(self):
+        source = self.gameui.sender().objectName()
+        row = int(source[1])
+        column = int(source[2])
+
+        
+
+        self.aiships
 
     def rotate(self):
         if self.playerrotation:
             self.playerrotation = False
             self.shipimage.swap(QtGui.QPixmap("ship1.png"))
             self.gameui.imagelabel.setPixmap(self.shipimage)
-            print("hori")
         else:
             self.playerrotation = True
             self.shipimage.swap(QtGui.QPixmap("ship.png"))
             self.gameui.imagelabel.setPixmap(self.shipimage)
-            print("vert")
-        
+
 
     def generate(self):
         """
-        generates ai ships. this function returns a list of tuples containing x and y coordinates, and their corresponding letter from a word.
+        generates ai ships. this function returns a list of strings containing x and y coordinates at indexes
+        [0] and [1], and their corresponding letter from a word at index [2].
         """
         coordslist = []
 
@@ -108,21 +118,22 @@ class Battleships(QtGui.QMainWindow):
         aiwords = self.choosewords()
 
         while boats != []:
-            basisx, basisy = randrange(1,9), randrange(1,9)            
+            basisx, basisy = randrange(1,9), randrange(1,9)
             orientation = bool(getrandbits(1))
 
             if orientation: #als schip verticaal geörienteerd is
                 if basisx + boats[0] < 10: #steekt het schip niet buiten het bord uit?
                     for i in range(boats[0]):
-                        coordslist.append((basisx + i, basisy, aiwords[0][i]))
+                        coordslist.append(str(basisx + i) + str(basisy) + aiwords[0][i])
                     boats.remove(boats[0])
                     aiwords.remove(aiwords[0])
             else:
                 if basisy + boats[0] < 10:
                     for i in range(boats[0]):
-                        coordslist.append((basisx, basisy + i, aiwords[0][i]))
+                        coordslist.append(str(basisx) + str(basisy + i) + aiwords[0][i])
                     boats.remove(boats[0])
-                    aiwords.remove(aiwords[0])        
+                    aiwords.remove(aiwords[0])
+        print(coordslist)
         return coordslist
 
 
@@ -147,7 +158,7 @@ class Battleships(QtGui.QMainWindow):
         woordenlijst.append(lengte4[randrange(len(lengte4))])
 
         woordenlijst.sort(key=len)
-        
+
         return woordenlijst
 
 
