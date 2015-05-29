@@ -8,19 +8,26 @@ from random import randrange, getrandbits
 class Battleships(QtGui.QMainWindow):
     def __init__(self):
         super(Battleships, self).__init__()
+        self.initUI()
+
+    def initUI(self):
+        """
+        loads ui from file
+        sets images for several widgets
+        """
         self.gameui = uic.loadUi("gameui.ui", self)  #load ui from file
         self.gameui.rotateleft.setIcon(QtGui.QIcon("rotateleft.png"))
         self.shipimage = QtGui.QPixmap("ship.png")
         self.gameui.imagelabel.setPixmap(self.shipimage)
         self.show()
-
+       
         self.gameui.startbutton.clicked.connect(self.game)
         self.gameui.actionVerlaat_spel.triggered.connect(self.exitgame)
 
     def game(self):
         self.boatlengths = [2,2,3,3,4]
         self.boatcoords = []
-        self.playerrotation = True
+        self.playerrotation = True #orientation is True or False. True means vertical, False means horizontal
 
         self.gameui.rotateleft.setEnabled(True)
         self.gameui.startbutton.setEnabled(False)
@@ -35,26 +42,45 @@ class Battleships(QtGui.QMainWindow):
                 self.coord.clicked.connect(self.placeship)
 
     def placeship(self):
+        """
+        this function takes care of the player clicking what places they want their ships to be at.
+        it takes the input, checks if their positions do not extend outside the board, or are the
+        same as any other ships' positions.
+        """
         source = self.gameui.sender().objectName()
         row = int(source[1])
         column = int(source[2])
 
+        #REMEMBER TO CHECK IF ALL FIVE SHIPS HAVE BEEN PLACED AFTER EACH SHIP HAS BEEN PLACED AND ADDED TO LIST
 
-        #check if coords are valid
-        if self.boatlengths != []:
-            if column + self.boatlengths[0] < 10:
+        if self.playerrotation: #is the ship aligned vertically?
+            if row + self.boatlengths[0] < 11:
                 shippositions = []
                 for i in range(self.boatlengths[0]):
-                    shippositions.append(str(row) + str(column))
+                    shippositions.append(str(row + i) + str(column))
                 if not set(self.boatcoords).intersection(set(shippositions)):
                 #empty sets return False, so if none of the elements of the shippositions list is in boatcoords we add the position of the ship to boatcoords
+                #this is to avoid players placing two ships in the same location
                     for pos in shippositions:
                         self.boatcoords.append(pos)
                     self.boatlengths.remove(self.boatlengths[0])
-                    #self.gameui.findChild(QtGui.QPushButton, source).setEnabled(False)
-                    #self.gameui.findChild(QtGui.QPushButton, source).setStyleSheet("background-color: red")
+                    for ship in shippositions:
+                        print(ship)
+                        self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setEnabled(False)
+                        self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setStyleSheet("background-color: blue")
+                        
         else:
-            self.startgame()
+            if column + self.boatlengths[0] < 11:
+                shippositions = []
+                for i in range(self.boatlengths[0]):
+                    shippositions.append(str(row) + str(column + i))
+                if not set(self.boatcoords).intersection(set(shippositions)):
+                    for pos in shippositions:
+                        self.boatcoords.append(pos)
+                    self.boatlengths.remove(self.boatlengths[0])
+                    for ship in shippositions:
+                        self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setEnabled(False)
+                        self.gameui.findChild(QtGui.QPushButton, "s" + str(ship[0]) + str(ship[1])).setStyleSheet("background-color: blue")
 
     def startgame(self):
         print("hoi")
@@ -83,7 +109,7 @@ class Battleships(QtGui.QMainWindow):
 
         while boats != []:
             basisx, basisy = randrange(1,9), randrange(1,9)            
-            orientation = bool(getrandbits(1)) #orientation is True or False. True means vertical, False means horizontal
+            orientation = bool(getrandbits(1))
 
             if orientation: #als schip verticaal geörienteerd is
                 if basisx + boats[0] < 10: #steekt het schip niet buiten het bord uit?
