@@ -8,7 +8,10 @@ from random import randrange, getrandbits
 class Battleships(QtGui.QMainWindow):
     def __init__(self):
         super(Battleships, self).__init__()
-        self.gameui = uic.loadUi('gameui.ui', self)  #load ui from file
+        self.gameui = uic.loadUi("gameui.ui", self)  #load ui from file
+        self.gameui.rotateleft.setIcon(QtGui.QIcon("rotateleft.png"))
+        self.shipimage = QtGui.QPixmap("ship.png")
+        self.gameui.imagelabel.setPixmap(self.shipimage)
         self.show()
 
         self.gameui.startbutton.clicked.connect(self.game)
@@ -16,13 +19,13 @@ class Battleships(QtGui.QMainWindow):
 
     def game(self):
         self.boatlengths = [2,2,3,3,4]
-        self.boatcoords = [] 
+        self.boatcoords = []
+        self.playerrotation = True
 
         self.gameui.rotateleft.setEnabled(True)
         self.gameui.startbutton.setEnabled(False)
 
-        #self.gameui.rotateleft.clicked.connect()
-        #self.gameui.rotateright.clicked.connect()
+        self.gameui.rotateleft.clicked.connect(self.rotate)
 
         self.aiships = self.generate()
 
@@ -36,9 +39,10 @@ class Battleships(QtGui.QMainWindow):
         row = int(source[1])
         column = int(source[2])
 
+
         #check if coords are valid
         if self.boatlengths != []:
-            if row + self.boatlengths[0] < 10:
+            if column + self.boatlengths[0] < 10:
                 shippositions = []
                 for i in range(self.boatlengths[0]):
                     shippositions.append(str(row) + str(column))
@@ -47,13 +51,25 @@ class Battleships(QtGui.QMainWindow):
                     for pos in shippositions:
                         self.boatcoords.append(pos)
                     self.boatlengths.remove(self.boatlengths[0])
-                    self.gameui.findChild(QtGui.QPushButton, source).setEnabled(False)
-                    self.gameui.findChild(QtGui.QPushButton, source).setStyleSheet("background-color: red")
+                    #self.gameui.findChild(QtGui.QPushButton, source).setEnabled(False)
+                    #self.gameui.findChild(QtGui.QPushButton, source).setStyleSheet("background-color: red")
         else:
             self.startgame()
 
     def startgame(self):
         print("hoi")
+
+    def rotate(self):
+        if self.playerrotation:
+            self.playerrotation = False
+            self.shipimage.swap(QtGui.QPixmap("ship1.png"))
+            self.gameui.imagelabel.setPixmap(self.shipimage)
+            print("hori")
+        else:
+            self.playerrotation = True
+            self.shipimage.swap(QtGui.QPixmap("ship.png"))
+            self.gameui.imagelabel.setPixmap(self.shipimage)
+            print("vert")
         
 
     def generate(self):
