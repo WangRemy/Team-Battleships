@@ -2191,7 +2191,7 @@
       <x>30</x>
       <y>420</y>
       <width>331</width>
-      <height>101</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -2199,6 +2199,9 @@
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
     <property name="text">
      <string/>
@@ -2235,7 +2238,7 @@
     <property name="title">
      <string>Menu</string>
     </property>
-    <addaction name="menu_btn"/>
+    <addaction name="actionNieuwSpel"/>
     <addaction name="separator"/>
     <addaction name="actionVerlaat_spel"/>
    </widget>
@@ -2246,7 +2249,7 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="menu_btn">
+  <action name="actionNieuwSpel">
    <property name="text">
     <string>Nieuw spel</string>
    </property>
