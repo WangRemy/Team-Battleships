@@ -1,6 +1,6 @@
 # Battleships
 
-Instructies voor zeeslag
+Instructies voor zeeslag:
 
 Roep het programma aan met python3 battleships.py
 
